@@ -39,13 +39,18 @@ class Autoencoder(Model):
     def __init__(self, height, width, depth, nodes, window, stride ):
         super(Autoencoder, self).__init__()
         self.shape = (width, height, depth)
-        self.encoder = tf.keras.Sequential()
+        # self.encoder = tf.keras.Sequential()
+        inputs = layers.Input(shape = self.shape)
+        x=inputs
         for node in nodes:
-            self.encoder.add(layers.Conv2D(node, (window,window), activation='relu', padding='same', strides=stride))
-        self.decoder = tf.keras.Sequential()
+            x = layers.Conv2D(node, (window,window), activation='relu', padding='same', strides=stride)(x)
+        latent = x
+        self.encoder = Model(inputs, latent, name = 'encoder')
         for node in nodes[::-1]:
-            self.decoder.add(layers.Conv2DTranspose(node, kernel_size=window, strides=stride, activation="relu", padding="same"))
-        self.decoder.add(layers.Conv2D(depth, kernel_size = (window, window), activation="sigmoid", padding="same"))
+            x=layers.Conv2DTranspose(node, kernel_size=window, strides=stride, activation="relu", padding="same")(x)
+        outputs = layers.Conv2D(depth, kernel_size = (window, window), activation="sigmoid", padding="same")(x)
+        self.decoder = Model(latent, outputs, name='decoder')
+        self.autoencoder = Model(inputs, self.decoder(self.encoder(inputs)), name = 'autoencoder')
     def call(self, x):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
