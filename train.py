@@ -22,6 +22,7 @@ def build_dataset(data, labels, valid_label =1, anomaly_label =3, contamination 
     valid_indexes = np.where(labels == valid_label) [0]
     anomaly_indexes = np.where(labels == anomaly_label) [0]
 
+    random.seed(seed)
     random.shuffle(valid_indexes)
     random.shuffle(anomaly_indexes)
 
@@ -63,7 +64,7 @@ def show_predictions(decoded, gt, samples=10):
             outputs = np.vstack([outputs, output])
     return outputs
 
-Epochs = 50
+Epochs = 200
 Init_LR = 1e-3
 batch_size = 32
 
@@ -79,9 +80,7 @@ images = images.astype("float32")/255.0
 train_x, test_x = train_test_split(images, test_size=0.2, random_state=77)
 
 print("building autoencoder")
-# encoder, decoder, autoencoder = Autoencoder.build(480,640,3)
-autoencoder = Autoencoder(200,200,3, (16,8), 5, 3)
-# encoder, decoder, autoencoder = Autoencoder.build(28,28,1)
+autoencoder = Autoencoder.build(200,200,3, (32, 16, 8), 3, 2, 16)
 optimiser = Adam(learning_rate = Init_LR, decay = Init_LR/Epochs)
 autoencoder.compile(loss = 'mae', optimizer = optimiser)
 
