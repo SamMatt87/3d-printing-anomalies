@@ -1,12 +1,9 @@
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
-from tensorflow.keras import backend as K
-import tensorflow as tf
-import numpy as np
-import math
+from typing import Tuple
 
 class Autoencoder():
-    def build(height, width, depth, nodes, window, stride, latent_dim ):
+    def build(height:int, width:int, depth:int, nodes: Tuple[int], window: int, stride: int, latent_dim: int) -> Model:
         shape = (width, height, depth)
         inputs = layers.Input(shape)
         x = inputs

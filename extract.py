@@ -12,7 +12,7 @@ def extract_images() -> Tuple[np.ndarray, np.ndarray]:
     for subfolder in subfolders:
         for image in os.listdir(os.path.join(data_directory,subfolder)):
             img = cv2.imread(os.path.join(data_directory, subfolder, image))
-            img = cv2.resize(img, (200,200))
+            img = cv2.resize(img, (400,400))
             images.append(np.asarray(img))
             if subfolder.startswith('no_'):
                 labels.append(1)

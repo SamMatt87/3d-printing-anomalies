@@ -18,7 +18,7 @@ import os
 now = datetime.now()
 date_time = now.strftime("%d-%m-%Y-%H-%M-%S")
 
-def build_dataset(data, labels, valid_label =1, anomaly_label =3, contamination = 0.01, seed = 77):
+def build_dataset(data: np.ndarray, labels: np.ndarray, valid_label: int =1, anomaly_label: int =0, contamination: float = 0.01, seed: int = 77) -> np.ndarray:
     valid_indexes = np.where(labels == valid_label) [0]
     anomaly_indexes = np.where(labels == anomaly_label) [0]
 
@@ -50,13 +50,10 @@ def build_dataset(data, labels, valid_label =1, anomaly_label =3, contamination 
                 f.write(f"{label}\n")
     return images
 
-def show_predictions(decoded, gt, samples=10):
+def show_predictions(decoded: np.ndarray, gt: np.ndarray, samples: int=10) -> np.ndarray:
     for sample in range(0, samples):
         original = (gt[sample] * 255).astype("uint8")
         reconstructed = (decoded[sample] * 255).astype("uint8")
-        if len(original.shape) == len(reconstructed.shape) + 1:
-            original = original.reshape(original.shape[:-1])
-
         output = np.hstack([original, reconstructed])
         if sample == 0:
             outputs = output
@@ -64,23 +61,20 @@ def show_predictions(decoded, gt, samples=10):
             outputs = np.vstack([outputs, output])
     return outputs
 
-Epochs = 200
+Epochs = 125
 Init_LR = 1e-3
 batch_size = 32
 
 print("loading dataset")
 data, labels = extract_images()
-# (train_x, train_y), (test_x, test_y) = mnist.load_data()
 print("creating dataset")
 images = build_dataset(data, labels, valid_label=1, anomaly_label=0, contamination=0.01)
-# images = build_dataset(train_x, train_y, valid_label=1, anomaly_label=3, contamination=0.01)
 
-# images = np.expand_dims(images, axis=-1)
 images = images.astype("float32")/255.0
 train_x, test_x = train_test_split(images, test_size=0.2, random_state=77)
 
 print("building autoencoder")
-autoencoder = Autoencoder.build(200,200,3, (32, 16, 8), 3, 2, 16)
+autoencoder = Autoencoder.build(400,400,3, (16, 8), 3, 2, 16)
 optimiser = Adam(learning_rate = Init_LR, decay = Init_LR/Epochs)
 autoencoder.compile(loss = 'mae', optimizer = optimiser)
 
